@@ -1,0 +1,36 @@
+{
+  "name": "contribscope",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Generate deduplicated GitHub contributor images for repos, repo groups, orgs, and users.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev src/index.ts --port 8787 --local",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "check": "pnpm typecheck && pnpm test",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\""
+  },
+  "keywords": [
+    "github",
+    "contributors",
+    "readme",
+    "svg",
+    "cloudflare-workers",
+    "hono"
+  ],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@11.1.3",
+  "dependencies": {
+    "hono": "^4.10.6"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260510.0",
+    "prettier": "^3.8.3",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.14",
+    "wrangler": "^4.50.0"
+  }
+}

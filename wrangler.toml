@@ -1,0 +1,15 @@
+name = "contribscope"
+main = "src/index.ts"
+compatibility_date = "2026-05-25"
+
+[observability]
+enabled = true
+
+[vars]
+APP_NAME = "ContribScope"
+
+# Bundle .html files as text strings so the Worker can serve them inline.
+[[rules]]
+type = "Text"
+globs = ["**/*.html"]
+fallthrough = true

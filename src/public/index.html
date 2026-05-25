@@ -1,0 +1,1166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>ContribScope - GitHub contributor images</title>
+    <meta name="description" content="Generate deduplicated GitHub contributor images for repos, repo groups, orgs, and users." />
+    <meta name="theme-color" content="#060607" />
+
+    <!-- Open Graph / social -->
+    <meta property="og:title" content="ContribScope - GitHub contributor images" />
+    <meta property="og:description" content="README-ready SVG contributor grids for any GitHub repo, org, or user. Deduplicated and served from the edge." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ContribScope" />
+    <meta name="twitter:description" content="README-ready SVG contributor grids for any GitHub repo, org, or user." />
+
+    <!-- Inline SVG favicon -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23ededef'/%3E%3Ctext x='16' y='21' font-family='Menlo,Consolas,monospace' font-size='13' font-weight='700' fill='%23060607' text-anchor='middle'%3ECS%3C/text%3E%3C/svg%3E"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #060607;
+        --bg-elev: #0c0c0e;
+        --panel: #0e0e10;
+        --line: rgba(255, 255, 255, 0.08);
+        --line-strong: rgba(255, 255, 255, 0.14);
+        --ink: #ededef;
+        --ink-dim: #a3a3a8;
+        --muted: #6b6b72;
+        --accent: #ffffff;
+        --accent-soft: rgba(255, 255, 255, 0.06);
+        --success: #5be09b;
+        --danger: #ff7a7a;
+        --warn: #f5c469;
+        --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+        --sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--sans);
+        font-feature-settings: 'cv02', 'cv03', 'cv11';
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      /* ---------- Subtle dot grid background ---------- */
+      .bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+        background-size: 22px 22px;
+        background-position: 0 0;
+        mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 0%, transparent 90%);
+        -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 0%, transparent 90%);
+      }
+
+      .bg-fade {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        background: linear-gradient(180deg, transparent 0%, var(--bg) 95%);
+      }
+
+      /* ---------- Layout ---------- */
+      .wrap {
+        position: relative;
+        z-index: 2;
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 28px 28px 80px;
+      }
+
+      /* ---------- Nav ---------- */
+      nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 28px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        letter-spacing: -0.01em;
+        text-decoration: none;
+        color: var(--ink);
+      }
+
+      .mark {
+        display: grid;
+        place-items: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        background: var(--ink);
+        color: var(--bg);
+        font-weight: 700;
+        font-size: 11px;
+        font-family: var(--mono);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 22px;
+        font-size: 13px;
+      }
+
+      .nav-links a {
+        color: var(--ink-dim);
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+
+      .nav-links a:hover {
+        color: var(--ink);
+      }
+
+      /* ---------- Hero ---------- */
+      .hero {
+        padding: 64px 0 48px;
+        text-align: center;
+        max-width: 720px;
+        margin: 0 auto;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 11px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--accent-soft);
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--ink-dim);
+        margin-bottom: 22px;
+      }
+
+      .eyebrow .dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--success);
+        box-shadow: 0 0 8px var(--success);
+      }
+
+      h1 {
+        margin: 0 0 16px;
+        font-size: clamp(34px, 5vw, 52px);
+        line-height: 1.05;
+        letter-spacing: -0.035em;
+        font-weight: 600;
+      }
+
+      h1 .mono {
+        font-family: var(--mono);
+        font-weight: 500;
+        color: var(--ink-dim);
+      }
+
+      .lead {
+        margin: 0 auto;
+        max-width: 540px;
+        color: var(--ink-dim);
+        font-size: 15px;
+        line-height: 1.65;
+      }
+
+      /* ---------- Tool card ---------- */
+      .card {
+        margin: 8px auto 0;
+        max-width: 880px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--line);
+        background: var(--bg-elev);
+      }
+
+      .card-head-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--ink-dim);
+      }
+
+      .card-head-dots {
+        display: flex;
+        gap: 5px;
+      }
+
+      .card-head-dots span {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .token-button {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 6px 11px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: transparent;
+        color: var(--ink-dim);
+        font-family: var(--sans);
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition:
+          color 0.15s,
+          border-color 0.15s,
+          background 0.15s;
+      }
+
+      .token-button:hover {
+        color: var(--ink);
+        border-color: var(--line-strong);
+        background: var(--accent-soft);
+      }
+
+      .token-button.has-token {
+        color: var(--success);
+        border-color: rgba(91, 224, 155, 0.25);
+        background: rgba(91, 224, 155, 0.06);
+      }
+
+      .token-key {
+        width: 12px;
+        height: 12px;
+      }
+
+      .body {
+        padding: 22px;
+        display: grid;
+        gap: 18px;
+      }
+
+      /* ---------- Tabs ---------- */
+      .tabs {
+        position: relative;
+        display: inline-flex;
+        padding: 3px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--bg-elev);
+        width: fit-content;
+      }
+
+      .tabs .pill {
+        position: absolute;
+        top: 3px;
+        bottom: 3px;
+        border-radius: 6px;
+        background: var(--accent-soft);
+        border: 1px solid var(--line);
+        transition:
+          transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+          width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        z-index: 0;
+      }
+
+      .tab {
+        position: relative;
+        z-index: 1;
+        min-height: 30px;
+        padding: 0 14px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--muted);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: color 0.2s;
+      }
+
+      .tab[aria-selected='true'] {
+        color: var(--ink);
+      }
+      .tab:hover:not([aria-selected='true']) {
+        color: var(--ink-dim);
+      }
+
+      /* ---------- Inputs ---------- */
+      label {
+        display: grid;
+        gap: 7px;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-family: var(--mono);
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        min-height: 38px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--bg-elev);
+        color: var(--ink);
+        padding: 0 12px;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: 0;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+        font-family: var(--mono);
+      }
+
+      input::placeholder {
+        color: var(--muted);
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--line-strong);
+        background: #131316;
+      }
+
+      select {
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%236b6b72' d='M5 6 0 0h10z'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 32px;
+        font-family: var(--sans);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+
+      .urlbox {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+      }
+
+      code.url {
+        display: flex;
+        align-items: center;
+        min-height: 38px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0 12px;
+        color: var(--ink-dim);
+        background: var(--bg-elev);
+        font-family: var(--mono);
+        font-size: 12px;
+        overflow: auto;
+        white-space: nowrap;
+        scrollbar-width: thin;
+      }
+
+      code.url::-webkit-scrollbar {
+        height: 4px;
+      }
+      code.url::-webkit-scrollbar-thumb {
+        background: var(--line);
+        border-radius: 4px;
+      }
+
+      .btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 0 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--bg-elev);
+        color: var(--ink);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition:
+          border-color 0.15s,
+          background 0.15s,
+          color 0.15s;
+        white-space: nowrap;
+      }
+
+      .btn:hover {
+        border-color: var(--line-strong);
+        background: #16161a;
+      }
+
+      .btn.primary {
+        background: var(--ink);
+        color: var(--bg);
+        border-color: var(--ink);
+      }
+
+      .btn.primary:hover {
+        background: #d6d6da;
+      }
+
+      .btn.success {
+        background: rgba(91, 224, 155, 0.14);
+        border-color: rgba(91, 224, 155, 0.4);
+        color: var(--success);
+      }
+
+      /* ---------- Preview ---------- */
+      .preview {
+        position: relative;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: repeating-linear-gradient(45deg, transparent 0 14px, rgba(255, 255, 255, 0.015) 14px 15px), var(--bg-elev);
+        min-height: 220px;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        overflow: auto;
+      }
+
+      .preview img {
+        max-width: 100%;
+        height: auto;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .preview img.ready {
+        opacity: 1;
+      }
+
+      .preview-status {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        pointer-events: none;
+        transition: opacity 0.2s;
+        opacity: 0;
+      }
+
+      .preview-status.on {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .status-loading {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .spinner {
+        width: 14px;
+        height: 14px;
+        border: 1.5px solid var(--line);
+        border-top-color: var(--ink-dim);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .status-error {
+        max-width: 460px;
+        text-align: center;
+      }
+
+      .status-error .err-tag {
+        display: inline-block;
+        padding: 3px 9px;
+        border: 1px solid rgba(255, 122, 122, 0.3);
+        border-radius: 999px;
+        background: rgba(255, 122, 122, 0.08);
+        color: var(--danger);
+        font-family: var(--mono);
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 12px;
+      }
+
+      .status-error .err-msg {
+        color: var(--ink);
+        font-size: 14px;
+        line-height: 1.55;
+        margin: 0 0 10px;
+      }
+
+      .status-error .err-hint {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+        margin: 0;
+      }
+
+      .status-error .err-hint a {
+        color: var(--ink-dim);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      /* ---------- Examples grid ---------- */
+      .examples {
+        margin-top: 32px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 10px;
+      }
+
+      .example {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--panel);
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--ink-dim);
+        cursor: pointer;
+        transition:
+          border-color 0.15s,
+          background 0.15s,
+          color 0.15s;
+        text-align: left;
+        width: 100%;
+        overflow: hidden;
+      }
+
+      .example:hover {
+        border-color: var(--line-strong);
+        background: var(--bg-elev);
+        color: var(--ink);
+      }
+
+      .example .arrow {
+        color: var(--muted);
+        font-family: var(--sans);
+        flex-shrink: 0;
+      }
+
+      .example span:nth-child(2) {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* ---------- Token modal ---------- */
+      .modal-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+
+      .modal-bg.on {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .modal {
+        position: fixed;
+        z-index: 11;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -48%);
+        width: min(440px, calc(100vw - 32px));
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 22px;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.2s,
+          transform 0.2s;
+      }
+
+      .modal.on {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translate(-50%, -50%);
+      }
+
+      .modal h2 {
+        margin: 0 0 6px;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .modal p {
+        margin: 0 0 16px;
+        font-size: 13px;
+        line-height: 1.55;
+        color: var(--ink-dim);
+      }
+
+      .modal p a {
+        color: var(--ink);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 14px;
+        justify-content: flex-end;
+      }
+
+      .modal-actions .btn {
+        min-height: 34px;
+        padding: 0 14px;
+        font-size: 12px;
+      }
+
+      /* ---------- Footer ---------- */
+      footer {
+        margin-top: 64px;
+        padding-top: 24px;
+        border-top: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      footer .right {
+        display: flex;
+        gap: 16px;
+      }
+
+      footer a {
+        color: var(--ink-dim);
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+
+      footer a:hover {
+        color: var(--ink);
+      }
+
+      /* ---------- Responsive ---------- */
+      @media (max-width: 720px) {
+        .wrap {
+          padding: 20px 18px 60px;
+        }
+        .hero {
+          padding: 40px 0 32px;
+        }
+        .grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .urlbox {
+          grid-template-columns: 1fr;
+        }
+        nav .nav-links {
+          gap: 14px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg" aria-hidden="true"></div>
+    <div class="bg-fade" aria-hidden="true"></div>
+
+    <div class="wrap">
+      <nav>
+        <a class="brand" href="/">
+          <span class="mark">CS</span>
+          <span>ContribScope</span>
+        </a>
+        <div class="nav-links">
+          <a href="https://github.com" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="/health">Status</a>
+        </div>
+      </nav>
+
+      <header class="hero">
+        <div class="eyebrow"><span class="dot"></span>Edge-rendered SVGs</div>
+        <h1>
+          Contributor images <br />
+          <span class="mono">for any GitHub scope.</span>
+        </h1>
+        <p class="lead">
+          README-ready SVG grids from a repo, many repos, an organization, or a user's public projects. Deduplicated, sorted, served from the edge.
+        </p>
+      </header>
+
+      <section class="card" id="tool">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-head-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span>contribscope</span>
+          </div>
+          <button class="token-button" id="token-button" type="button" aria-label="Configure GitHub token">
+            <svg
+              class="token-key"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="7.5" cy="15.5" r="5.5" />
+              <path d="m21 2-9.6 9.6" />
+              <path d="m15.5 7.5 3 3L22 7l-3-3" />
+            </svg>
+            <span id="token-button-text">Add token</span>
+          </button>
+        </div>
+
+        <div class="body">
+          <div class="tabs" role="tablist" aria-label="Source type">
+            <div class="pill" id="tab-pill"></div>
+            <button class="tab" type="button" data-mode="repo" aria-selected="false">Repo</button>
+            <button class="tab" type="button" data-mode="repos" aria-selected="true">Repos</button>
+            <button class="tab" type="button" data-mode="org" aria-selected="false">Org</button>
+            <button class="tab" type="button" data-mode="user" aria-selected="false">User</button>
+          </div>
+
+          <label>
+            <span>Source</span>
+            <input id="source" value="vercel/next.js,vercel/swr" spellcheck="false" autocomplete="off" />
+          </label>
+
+          <div class="grid">
+            <label>
+              <span>Limit</span>
+              <input id="limit" type="number" min="1" max="200" value="48" />
+            </label>
+            <label>
+              <span>Size</span>
+              <input id="size" type="number" min="24" max="128" value="64" />
+            </label>
+            <label>
+              <span>Shape</span>
+              <select id="shape">
+                <option value="rounded">Rounded</option>
+                <option value="circle">Circle</option>
+                <option value="square">Square</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            <span>Image URL</span>
+            <div class="urlbox">
+              <code class="url" id="url"></code>
+              <button class="btn" type="button" id="copy">Copy</button>
+            </div>
+          </label>
+
+          <div class="preview" aria-live="polite">
+            <img id="preview" alt="Contributor image preview" />
+            <div class="preview-status" id="status">
+              <div class="status-loading" id="status-loading">
+                <span class="spinner" aria-hidden="true"></span>
+                <span>Fetching contributors</span>
+              </div>
+              <div class="status-error" id="status-error" hidden>
+                <div class="err-tag" id="err-tag">Error</div>
+                <p class="err-msg" id="err-msg"></p>
+                <p class="err-hint" id="err-hint"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="examples" aria-label="Examples">
+        <button class="example" data-mode="repo" data-value="facebook/react"><span class="arrow">→</span><span>repo=facebook/react</span></button>
+        <button class="example" data-mode="repos" data-value="vercel/next.js,vercel/swr">
+          <span class="arrow">→</span><span>repos=vercel/next.js,vercel/swr</span>
+        </button>
+        <button class="example" data-mode="org" data-value="vercel"><span class="arrow">→</span><span>org=vercel&amp;limit=48</span></button>
+        <button class="example" data-mode="user" data-value="sindresorhus">
+          <span class="arrow">→</span><span>user=sindresorhus&amp;limit=24</span>
+        </button>
+      </section>
+
+      <footer>
+        <span>MIT licensed</span>
+        <div class="right">
+          <a href="https://github.com" target="_blank" rel="noreferrer">Source</a>
+          <a href="/health">Health</a>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Token modal -->
+    <div class="modal-bg" id="modal-bg" aria-hidden="true"></div>
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title">GitHub token</h2>
+      <p>
+        Without a token, GitHub allows 60 requests per hour from your network. A
+        <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noreferrer">fine-grained read-only token</a>
+        raises this to 5,000/hr. Stored only in your browser's localStorage; sent as a header on preview requests.
+      </p>
+      <label>
+        <span>Token (read-only)</span>
+        <input id="token-input" type="password" placeholder="github_pat_..." autocomplete="off" spellcheck="false" />
+      </label>
+      <div class="modal-actions">
+        <button class="btn" type="button" id="token-clear">Clear</button>
+        <button class="btn" type="button" id="token-cancel">Cancel</button>
+        <button class="btn primary" type="button" id="token-save">Save</button>
+      </div>
+    </div>
+
+    <script>
+      const TOKEN_KEY = 'contribscope.token';
+
+      const tabs = [...document.querySelectorAll('.tab')];
+      const tabPill = document.getElementById('tab-pill');
+      const source = document.querySelector('#source');
+      const limit = document.querySelector('#limit');
+      const size = document.querySelector('#size');
+      const shape = document.querySelector('#shape');
+      const url = document.querySelector('#url');
+      const preview = document.querySelector('#preview');
+      const copyBtn = document.querySelector('#copy');
+      const statusEl = document.querySelector('#status');
+      const statusLoading = document.querySelector('#status-loading');
+      const statusError = document.querySelector('#status-error');
+      const errTag = document.querySelector('#err-tag');
+      const errMsg = document.querySelector('#err-msg');
+      const errHint = document.querySelector('#err-hint');
+      const tokenButton = document.querySelector('#token-button');
+      const tokenButtonText = document.querySelector('#token-button-text');
+      const modal = document.querySelector('#modal');
+      const modalBg = document.querySelector('#modal-bg');
+      const tokenInput = document.querySelector('#token-input');
+      const tokenSave = document.querySelector('#token-save');
+      const tokenClear = document.querySelector('#token-clear');
+      const tokenCancel = document.querySelector('#token-cancel');
+      const examples = [...document.querySelectorAll('.example')];
+
+      let mode = 'repos';
+      let currentBlobUrl = null;
+      let abortController = null;
+
+      const sampleValues = {
+        repo: 'facebook/react',
+        repos: 'vercel/next.js,vercel/swr',
+        org: 'vercel',
+        user: 'github',
+      };
+
+      /* ---------- Token storage ---------- */
+      function getToken() {
+        try {
+          return localStorage.getItem(TOKEN_KEY) || '';
+        } catch (_) {
+          return '';
+        }
+      }
+
+      function setToken(value) {
+        try {
+          if (value) localStorage.setItem(TOKEN_KEY, value);
+          else localStorage.removeItem(TOKEN_KEY);
+        } catch (_) {
+          /* ignore */
+        }
+        refreshTokenButton();
+      }
+
+      function refreshTokenButton() {
+        if (getToken()) {
+          tokenButton.classList.add('has-token');
+          tokenButtonText.textContent = 'Token active';
+        } else {
+          tokenButton.classList.remove('has-token');
+          tokenButtonText.textContent = 'Add token';
+        }
+      }
+
+      /* ---------- Tabs ---------- */
+      function positionPill() {
+        const active = tabs.find((t) => t.getAttribute('aria-selected') === 'true');
+        if (!active) return;
+        const r = active.getBoundingClientRect();
+        const p = active.parentElement.getBoundingClientRect();
+        tabPill.style.width = r.width + 'px';
+        tabPill.style.transform = 'translateX(' + (r.left - p.left - 3) + 'px)';
+      }
+
+      function selectTab(target) {
+        mode = target.dataset.mode;
+        tabs.forEach((t) => t.setAttribute('aria-selected', String(t === target)));
+        source.value = sampleValues[mode];
+        positionPill();
+        triggerUpdate(0);
+      }
+
+      tabs.forEach((tab) => tab.addEventListener('click', () => selectTab(tab)));
+
+      /* ---------- Examples ---------- */
+      examples.forEach((ex) => {
+        ex.addEventListener('click', () => {
+          const m = ex.dataset.mode;
+          const v = ex.dataset.value;
+          const target = tabs.find((t) => t.dataset.mode === m);
+          if (!target) return;
+          mode = m;
+          tabs.forEach((t) => t.setAttribute('aria-selected', String(t === target)));
+          source.value = v;
+          positionPill();
+          triggerUpdate(0);
+          document.getElementById('tool').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+
+      /* ---------- URL builder ---------- */
+      function buildUrl() {
+        const params = new URLSearchParams();
+        const value = source.value.trim();
+        if (!value) return null;
+
+        if (mode === 'repo') params.set('repo', value);
+        if (mode === 'repos') params.set('repos', value);
+        if (mode === 'org') params.set('org', value);
+        if (mode === 'user') params.set('user', value);
+
+        params.set('limit', limit.value || '48');
+        params.set('size', size.value || '64');
+        params.set('shape', shape.value);
+
+        return location.origin + '/image?' + params.toString();
+      }
+
+      /* ---------- Status helpers ---------- */
+      function showLoading() {
+        statusEl.classList.add('on');
+        statusLoading.hidden = false;
+        statusError.hidden = true;
+        preview.classList.remove('ready');
+      }
+
+      function hideStatus() {
+        statusEl.classList.remove('on');
+      }
+
+      function showError(kind, message, hint) {
+        statusEl.classList.add('on');
+        statusLoading.hidden = true;
+        statusError.hidden = false;
+        errTag.textContent = (kind || 'Error').replaceAll('_', ' ');
+        errMsg.textContent = message || 'Could not load preview.';
+        errHint.innerHTML = hint || '';
+        preview.classList.remove('ready');
+        preview.removeAttribute('src');
+      }
+
+      function hintFor(kind) {
+        if (kind === 'rate_limit') {
+          return 'Click <strong>Add token</strong> at the top of the card to use a personal token.';
+        }
+        if (kind === 'not_found') {
+          return 'Check the spelling — repo or user might not exist or could be private.';
+        }
+        if (kind === 'unauthorized') {
+          return 'The token was rejected. Try clearing or replacing it.';
+        }
+        if (kind === 'bad_request') {
+          return 'The input does not look valid. Use <code>owner/name</code> for repos.';
+        }
+        return '';
+      }
+
+      /* ---------- Fetch preview ---------- */
+      async function loadPreview(imageUrl) {
+        if (abortController) abortController.abort();
+        abortController = new AbortController();
+
+        showLoading();
+        const headers = {};
+        const token = getToken();
+        if (token) headers['X-GitHub-Token'] = token;
+
+        try {
+          const response = await fetch(imageUrl, { headers, signal: abortController.signal });
+          const kind = response.headers.get('x-error-kind');
+          const message = response.headers.get('x-error-message');
+
+          if (!response.ok) {
+            showError(kind || 'error', message || 'HTTP ' + response.status, hintFor(kind || ''));
+            return;
+          }
+
+          const blob = await response.blob();
+          if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+          currentBlobUrl = URL.createObjectURL(blob);
+          preview.src = currentBlobUrl;
+        } catch (err) {
+          if (err.name === 'AbortError') return;
+          showError('network', 'Could not reach the server.', '');
+        }
+      }
+
+      preview.addEventListener('load', () => {
+        if (preview.getAttribute('src')) {
+          preview.classList.add('ready');
+          hideStatus();
+        }
+      });
+
+      /* ---------- Debounced update ---------- */
+      let updateTimer;
+      function triggerUpdate(delay = 450) {
+        const imageUrl = buildUrl();
+        if (!imageUrl) {
+          showError('empty', 'Enter a repo, repos, org, or user above.', '');
+          url.textContent = '';
+          return;
+        }
+        url.textContent = imageUrl;
+        clearTimeout(updateTimer);
+        updateTimer = setTimeout(() => loadPreview(imageUrl), delay);
+      }
+
+      [source, limit, size, shape].forEach((el) => el.addEventListener('input', () => triggerUpdate()));
+
+      /* ---------- Copy ---------- */
+      copyBtn.addEventListener('click', async () => {
+        const text = url.textContent;
+        if (!text) return;
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch (_) {
+          /* ignore */
+        }
+        copyBtn.textContent = 'Copied';
+        copyBtn.classList.add('success');
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy';
+          copyBtn.classList.remove('success');
+        }, 1300);
+      });
+
+      /* ---------- Token modal ---------- */
+      function openModal() {
+        tokenInput.value = getToken();
+        modal.classList.add('on');
+        modalBg.classList.add('on');
+        setTimeout(() => tokenInput.focus(), 50);
+      }
+
+      function closeModal() {
+        modal.classList.remove('on');
+        modalBg.classList.remove('on');
+      }
+
+      tokenButton.addEventListener('click', openModal);
+      modalBg.addEventListener('click', closeModal);
+      tokenCancel.addEventListener('click', closeModal);
+      tokenSave.addEventListener('click', () => {
+        setToken(tokenInput.value.trim());
+        closeModal();
+        triggerUpdate(0);
+      });
+      tokenClear.addEventListener('click', () => {
+        tokenInput.value = '';
+        setToken('');
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+      });
+
+      /* ---------- Init ---------- */
+      window.addEventListener('resize', positionPill);
+      refreshTokenButton();
+      positionPill();
+      triggerUpdate(0);
+    </script>
+  </body>
+</html>
