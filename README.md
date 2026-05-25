@@ -19,19 +19,19 @@ ContribScope is a small TypeScript service that generates contributor avatar gri
 ## Quick examples
 
 ```md
-![React contributors](https://your-domain.com/image?repo=facebook/react)
+![React contributors](https://https://dapotato.xyz/image?repo=facebook/react)
 ```
 
 ```md
-![Next.js stack contributors](https://your-domain.com/image?repos=vercel/next.js,vercel/swr)
+![Next.js stack contributors](https://https://dapotato.xyz/image?repos=vercel/next.js,vercel/swr)
 ```
 
 ```md
-![Vercel org contributors](https://your-domain.com/image?org=vercel&limit=48)
+![Vercel org contributors](https://https://dapotato.xyz/image?org=vercel&limit=48)
 ```
 
 ```md
-![sindresorhus contributors](https://your-domain.com/image?user=sindresorhus&limit=24)
+![sindresorhus contributors](https://https://dapotato.xyz/image?user=sindresorhus&limit=24)
 ```
 
 ## Web UI
