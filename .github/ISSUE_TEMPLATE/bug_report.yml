@@ -1,0 +1,63 @@
+name: Bug report
+description: Something is broken or behaves unexpectedly.
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. **Do not include any tokens or secrets** anywhere on this form.
+
+        For security issues, use a private security advisory instead — see [SECURITY.md](../blob/main/SECURITY.md).
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear and concise description of the bug.
+      placeholder: When I open /image?repo=foo/bar, I get a 500 instead of a rendered SVG.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Exact steps and the URL (with no tokens) that triggers the bug.
+      placeholder: |
+        1. Open https://my-deployment.workers.dev/image?repo=facebook/react
+        2. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: An SVG grid of contributors.
+    validations:
+      required: true
+
+  - type: input
+    id: deployment
+    attributes:
+      label: Where are you running it?
+      placeholder: Local dev (pnpm dev) / Cloudflare Workers / self-hosted fork
+    validations:
+      required: true
+
+  - type: input
+    id: commit
+    attributes:
+      label: Commit SHA or version
+      placeholder: e.g. main@8f5df3a
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error response headers (if HTTP)
+      description: Paste `X-Error-Kind` and `X-Error-Message` from the response if you have them. **Do not paste any `Authorization` or `X-GitHub-Token` headers.**
+      render: text
+    validations:
+      required: false

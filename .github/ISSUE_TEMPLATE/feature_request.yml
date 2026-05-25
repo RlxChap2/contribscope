@@ -1,0 +1,29 @@
+name: Feature request
+description: Suggest a new capability or API parameter.
+labels: ['enhancement']
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the use case first, the proposed solution second. Concrete examples help a lot.
+      placeholder: I want to render contributor grids for a private repo I have access to, so I need ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would the API or UI look like? A new query parameter? A new mode?
+      placeholder: Add a `private=true` flag that requires a token with `repo` scope ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      placeholder: Could be solved client-side by ... but that has the downside of ...
+    validations:
+      required: false
