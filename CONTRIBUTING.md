@@ -36,14 +36,26 @@ Both must pass. CI runs the same command on every PR.
 
 ## Security
 
-- Tokens are accepted via headers only, never via query strings or the URL — preserve this invariant.
-- Don't log token values or include them in error messages.
-- If you find a security issue, please open a private security advisory on GitHub instead of a public issue.
+- Tokens are accepted via the `X-GitHub-Token` / `Authorization: Bearer` headers only. Requests that include a `token`-shaped query parameter (`token`, `access_token`, `github_token`, `auth`, `apikey`, `api_key`) are actively rejected with a `400 bad_request` — preserve this invariant when touching `src/index.ts`.
+- Never `console.log` request bodies, headers, or env values — they end up in Cloudflare's request logs and stay there.
+- Never include the token (or any header value) in an error message body.
+- Found a vulnerability? Don't open a public issue — follow [SECURITY.md](SECURITY.md) to report privately via GitHub Security Advisories.
 
 ## Commit messages
 
-Short, present-tense, lowercase first letter for the subject — e.g. `add gap parameter to svg renderer`. Reference issues with `#123` when applicable.
+This repo uses [Conventional Commits](https://www.conventionalcommits.org/). Examples:
+
+```bash
+feat: add gap parameter to svg renderer
+fix(github): retry once on transient 502
+docs: clarify token model in README
+refactor(query): split parseRepo out of parseImageQuery
+chore: bump wrangler to 4.95
+ci: cache pnpm store across runs
+```
+
+Common types: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `chore`, `ci`, `build`. Scope is optional. Reference issues with `#123` in the body, not the subject.
 
 ## Releasing
 
-The project deploys via `pnpm deploy` (Wrangler). Main is the deploy branch.
+The project deploys via `pnpm deploy` (Wrangler). `main` is the deploy branch — anything merged there is releasable.

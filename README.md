@@ -2,7 +2,8 @@
 
 > README-ready GitHub contributor images for any scope — one repo, many repos, an organization, or a user. Runs on Cloudflare Workers.
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/your-org/contribscope)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/RlxChap2/contribscope)
+[![CI](https://github.com/RlxChap2/contribscope/actions/workflows/ci.yml/badge.svg)](https://github.com/RlxChap2/contribscope/actions/workflows/ci.yml)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ContribScope is a small TypeScript service that generates contributor avatar grids as SVGs. Unlike single-repo tools, it **deduplicates contributors across repositories** and sums their contribution counts.
@@ -114,10 +115,12 @@ When set, this token is used as a **fallback** for visitors who haven't added th
 
 ## Security model
 
-- Tokens are accepted only via the `X-GitHub-Token` (or `Authorization: Bearer`) header — never via query string, to prevent leakage into browser history, server logs, and shared caches.
-- The server never logs the token contents.
-- The HTML page sets a Content-Security-Policy that disallows third-party scripts and framing.
-- Browser storage uses `localStorage` — clear it by clicking **"Add token" → Clear**.
+- Tokens are accepted only via the `X-GitHub-Token` (or `Authorization: Bearer`) header — **never** via query string. Requests that include `token`, `access_token`, `github_token`, `auth`, `apikey`, or `api_key` as query parameters are rejected with `400 bad_request`, since the URL itself is captured by browser history, access logs, and shared caches.
+- The server never logs the token contents (no `console.log` of credentials anywhere).
+- Token-bearing responses are marked `Cache-Control: private` so they never share a cache entry across users.
+- The HTML page sets a strict Content-Security-Policy (no third-party scripts, `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`).
+- Browser-side, the token sits in `localStorage` under `contribscope.token`. Clear it via **"Add token" → Clear**.
+- Found a vulnerability? See [SECURITY.md](SECURITY.md).
 
 ## Local development
 
@@ -148,7 +151,7 @@ This pushes to Cloudflare Workers via Wrangler. See [`wrangler.toml`](wrangler.t
 
 ## Project layout
 
-```
+```text
 src/
   public/index.html  # the web UI (HTML + inline CSS + inline JS)
   globals.d.ts       # TS declaration for *.html imports

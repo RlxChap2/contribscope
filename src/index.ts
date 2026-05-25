@@ -50,8 +50,27 @@ function extractToken(headers: Headers): string | undefined {
   return undefined;
 }
 
+// Common token-ish query param names we explicitly refuse to read. If any of
+// these appear, fail loudly: the request URL itself ends up in access logs and
+// proxy caches, so accepting it (or even silently ignoring it) would leak.
+const FORBIDDEN_TOKEN_PARAMS = ['token', 'access_token', 'github_token', 'auth', 'apikey', 'api_key'];
+
 app.get('/image', async (context) => {
   const url = new URL(context.req.url);
+
+  for (const name of FORBIDDEN_TOKEN_PARAMS) {
+    if (url.searchParams.has(name)) {
+      const message =
+        `Tokens must be sent in the X-GitHub-Token header, not the URL. ` + `Remove the "${name}" query parameter and reissue the request.`;
+      return context.body(renderMessageSvg(message, 'error'), 400, {
+        'Content-Type': 'image/svg+xml; charset=utf-8',
+        'Cache-Control': 'no-store',
+        'X-Error-Kind': 'bad_request',
+        'X-Error-Message': message,
+      });
+    }
+  }
+
   const token = extractToken(context.req.raw.headers);
 
   try {
