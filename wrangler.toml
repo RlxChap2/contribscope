@@ -13,3 +13,9 @@ APP_NAME = "ContribScope"
 type = "Text"
 globs = ["**/*.html"]
 fallthrough = true
+
+# Bundle binary assets (PNG logos, etc.) as ArrayBuffers.
+[[rules]]
+type = "Data"
+globs = ["**/*.png"]
+fallthrough = true

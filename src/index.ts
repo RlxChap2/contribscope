@@ -2,6 +2,8 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { collectContributors, GitHubApiError } from './github';
 import { renderHomePage } from './html';
+import logoDark from './public/contrib_dark.png';
+import logoLight from './public/contrib_light.png';
 import { BadRequestError, parseImageQuery } from './query';
 import { renderMessageSvg, renderContributorsSvg, resolveAvatarImages } from './svg';
 import type { Bindings } from './types';
@@ -39,6 +41,16 @@ app.get('/health', (context) => {
     name: context.env.APP_NAME || 'ContribScope',
   });
 });
+
+// Logo assets — bundled into the Worker via the wrangler PNG Data rule.
+// Cached aggressively (1 year, immutable) since the file name is content-stable.
+const LOGO_HEADERS = {
+  'Content-Type': 'image/png',
+  'Cache-Control': 'public, max-age=31536000, immutable',
+};
+
+app.get('/logo-light.png', (context) => context.body(logoLight, 200, LOGO_HEADERS));
+app.get('/logo-dark.png', (context) => context.body(logoDark, 200, LOGO_HEADERS));
 
 // Tokens are accepted from request headers only — never from query strings,
 // which would leak into browser history, server logs, and shared caches.

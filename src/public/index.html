@@ -12,16 +12,15 @@
     <meta property="og:title" content="ContribScope - GitHub contributor images" />
     <meta property="og:description" content="README-ready SVG contributor grids for any GitHub repo, org, or user. Deduplicated and served from the edge." />
     <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:image" content="/logo-light.png" />
+    <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="ContribScope" />
     <meta name="twitter:description" content="README-ready SVG contributor grids for any GitHub repo, org, or user." />
+    <meta name="twitter:image" content="/logo-light.png" />
 
-    <!-- Inline SVG favicon -->
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23ededef'/%3E%3Ctext x='16' y='21' font-family='Menlo,Consolas,monospace' font-size='13' font-weight='700' fill='%23060607' text-anchor='middle'%3ECS%3C/text%3E%3C/svg%3E"
-    />
+    <!-- Favicon — light version (white-on-dark mark) for the dark UI -->
+    <link rel="icon" type="image/png" href="/logo-light.png" />
+    <link rel="apple-touch-icon" href="/logo-light.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -122,14 +121,18 @@
       .mark {
         display: grid;
         place-items: center;
-        width: 26px;
-        height: 26px;
-        border-radius: 6px;
-        background: var(--ink);
-        color: var(--bg);
-        font-weight: 700;
-        font-size: 11px;
-        font-family: var(--mono);
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .mark img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
       }
 
       .nav-links {
@@ -753,7 +756,7 @@
     <div class="wrap">
       <nav>
         <a class="brand" href="/">
-          <span class="mark">CS</span>
+          <span class="mark"><img src="/logo-light.png" alt="" width="28" height="28" /></span>
           <span>ContribScope</span>
         </a>
         <div class="nav-links">
