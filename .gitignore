@@ -6,6 +6,3 @@ coverage
 *.log
 .DS_Store
 *.env
-
-# Local-only editor / Claude Code launch config
-.claude/
